@@ -26,3 +26,10 @@ output "api_root_id" {
   value = "${aws_api_gateway_rest_api.apigw.root_resource_id}"
 }
 
+output "gateway_http_method" {
+  value = "${aws_api_gateway_method.main.http_method}"
+}
+
+output "gateway_resource_id" {
+  value = "${aws_api_gateway_method.main.resource_id}"
+}
