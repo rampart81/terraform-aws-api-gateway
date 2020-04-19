@@ -2,8 +2,9 @@
 ## API Gateway Set Up
 ###########################################################
 resource "aws_api_gateway_rest_api" "apigw" {
-  name        = var.apigw_name
-  description = var.description
+  name                     = var.apigw_name
+  description              = var.description
+  minimum_compression_size = var.minimum_compression_size
 }
 
 resource "aws_api_gateway_resource" "main" {
@@ -24,14 +25,17 @@ resource "aws_api_gateway_integration" "main" {
   resource_id = aws_api_gateway_method.main.resource_id
   http_method = aws_api_gateway_method.main.http_method
 
+  # The integration HTTP method specifying how API Gateway 
+  # will interact with the back end. Not all methods are 
+  # compatible with all AWS integrations. e.g. 
+  # Lambda function can only be invoked via POST.
   integration_http_method = var.integration_http_method
   type                    = var.integration_type
   uri                     = var.lambda_invoke_arn
 }
 
 resource "aws_api_gateway_deployment" "apigw" {
-  depends_on = [aws_api_gateway_integration.main]
-
+  depends_on  = [aws_api_gateway_integration.main]
   rest_api_id = aws_api_gateway_rest_api.apigw.id
   stage_name  = var.stage
 }
@@ -153,4 +157,5 @@ resource "aws_api_gateway_base_path_mapping" "apigw" {
   count       = var.custom_domain_enabled ? 1 : 0
   api_id      = aws_api_gateway_rest_api.apigw.id
   domain_name = aws_api_gateway_domain_name.apigw[0].domain_name
+  stage_name  = aws_api_gateway_deployment.apigw.stage_name
 }

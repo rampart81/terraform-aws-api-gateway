@@ -16,7 +16,7 @@ variable "authorization" {
 }
 
 variable "integration_http_method" {
-  default = "ANY"
+  default = "POST"
 }
 
 variable "description" {
@@ -62,3 +62,6 @@ variable "integration_type" {
   default = "AWS_PROXY"
 }
 
+variable "minimum_compression_size" {
+  default = 1000000
+}
