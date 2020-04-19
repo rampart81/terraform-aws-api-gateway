@@ -65,3 +65,13 @@ variable "integration_type" {
 variable "minimum_compression_size" {
   default = 1000000
 }
+
+variable "enable_cors" {
+  type    = bool
+  default = true
+}
+
+variable "cors_origin" {
+  type    = string
+  default = "*"
+}
