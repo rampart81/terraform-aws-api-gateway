@@ -1,6 +1,15 @@
 variable "apigw_name" {
 }
 
+variable "private_api_gateway" {
+  default = false
+}
+
+variable "vpce_id" {
+  type    = string
+  default = ""
+}
+
 variable "stage" {
 }
 

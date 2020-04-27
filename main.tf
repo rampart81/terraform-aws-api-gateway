@@ -1,11 +1,60 @@
 ###########################################################
 ## API Gateway Set Up
 ###########################################################
+#resource "aws_api_gateway_rest_api" "public_apigw" {
+#  count = var.private_api_gateway ? 0 : 1
+
+#  name                     = var.apigw_name
+#  description              = var.description
+#  minimum_compression_size = var.minimum_compression_size
+#}
+
 resource "aws_api_gateway_rest_api" "apigw" {
+  #count = var.private_api_gateway ? 1 : 0
+
   name                     = var.apigw_name
   description              = var.description
   minimum_compression_size = var.minimum_compression_size
+
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "execute-api:Invoke",
+            "Resource": [
+                "*"
+            ]
+        },
+        {
+            "Effect": "Deny",
+            "Principal": "*",
+            "Action": "execute-api:Invoke",
+            "Resource": [
+                "*"
+            ],
+            "Condition" : {
+                "StringNotEquals": {
+                    "aws:SourceVpce": "${var.vpce_id}"
+                }
+            }
+        }
+    ]
 }
+EOF
+
+  endpoint_configuration {
+    types            = ["PRIVATE"]
+    vpc_endpoint_ids = [var.vpce_id]
+  }
+}
+
+#data "aws_api_gateway_rest_api" "apigw" {
+#  name       = var.apigw_name
+#  depends_on = [aws_api_gateway_rest_api.public_apigw, aws_api_gateway_rest_api.private_apigw]
+#}
 
 resource "aws_api_gateway_resource" "main" {
   rest_api_id = aws_api_gateway_rest_api.apigw.id
