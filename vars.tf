@@ -75,3 +75,7 @@ variable "cors_origin" {
   type    = string
   default = "*"
 }
+
+variable source_cidr {
+  type = list(string)
+}

@@ -5,6 +5,32 @@ resource "aws_api_gateway_rest_api" "apigw" {
   name                     = var.apigw_name
   description              = var.description
   minimum_compression_size = var.minimum_compression_size
+
+  policy = <<EOF
+
+{
+  "Version": "2012-10-17",
+  "Statement": [{
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "execute-api:Invoke",
+      "Resource": "execute-api:/*/*/*"
+    },
+    {
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": "execute-api:Invoke",
+      "Resource": "execute-api:/*/*/*",
+      "Condition": {
+        "NotIpAddress": {
+          "aws:SourceIp": ["${join("\", \"", var.source_cidr)}"]
+        }
+      }
+    }
+  ]
+}
+EOF
+
 }
 
 resource "aws_api_gateway_resource" "main" {
