@@ -255,3 +255,71 @@ resource "aws_api_gateway_method_response" "cors" {
 
   depends_on = [aws_api_gateway_method.cors]
 }
+
+###########################################################
+## GraphiQL
+###########################################################
+resource "aws_api_gateway_method" "graphiql" {
+  rest_api_id   = aws_api_gateway_rest_api.apigw.id
+  resource_id   = aws_api_gateway_resource.main.id
+  http_method   = "GET"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "graphiql" {
+
+  rest_api_id = aws_api_gateway_rest_api.apigw.id
+  resource_id = aws_api_gateway_method.main.resource_id
+  http_method = aws_api_gateway_method.graphiql.http_method
+
+  type = "MOCK"
+
+  request_templates = {
+    "application/json" = "{ \"statusCode\": 200 }"
+  }
+}
+
+resource "aws_api_gateway_integration_response" "graphiql" {
+  count = var.enable_cors ? 1 : 0
+
+  rest_api_id = aws_api_gateway_rest_api.apigw.id
+  resource_id = aws_api_gateway_method.main.resource_id
+  http_method = aws_api_gateway_method.graphiql.http_method
+
+  status_code         = 200
+  response_parameters = {
+    "method.response.header.Content-Type"                 = "'text/html'",
+    "method.response.header.Access-Control-Allow-Origin"  = "'${var.cors_origin}'",
+    "method.response.header.Access-Control-Allow-Methods" = "'POST, GET, OPTIONS, PUT, DELETE'",
+    "method.response.header.Access-Control-Allow-Headers" = "'Accept, Content-Type, Content-Length, Accept-Encoding, Authorization'",
+  }
+
+  response_templates = {
+    "text/html"      =  var.graphiql_html
+  }
+
+  depends_on = [
+    aws_api_gateway_integration.graphiql,
+    aws_api_gateway_method_response.graphiql,
+  ]
+}
+
+resource "aws_api_gateway_method_response" "graphiql" {
+  rest_api_id = aws_api_gateway_rest_api.apigw.id
+  resource_id = aws_api_gateway_method.main.resource_id
+  http_method = aws_api_gateway_method.graphiql.http_method
+
+  status_code         = 200
+  response_parameters = {
+    "method.response.header.Content-Type"                 = true,
+    "method.response.header.Access-Control-Allow-Origin"  = true,
+    "method.response.header.Access-Control-Allow-Methods" = true,
+    "method.response.header.Access-Control-Allow-Headers" = true,
+  }
+
+  response_models = {
+    "text/html" = "Empty"
+  }
+
+  depends_on = [aws_api_gateway_method.graphiql]
+}

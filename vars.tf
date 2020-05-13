@@ -79,3 +79,7 @@ variable "cors_origin" {
 variable source_cidr {
   type = list(string)
 }
+
+variable graphiql_html {
+  type = string
+}
