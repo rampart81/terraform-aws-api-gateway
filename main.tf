@@ -280,8 +280,6 @@ resource "aws_api_gateway_integration" "graphiql" {
 }
 
 resource "aws_api_gateway_integration_response" "graphiql" {
-  count = var.enable_cors ? 1 : 0
-
   rest_api_id = aws_api_gateway_rest_api.apigw.id
   resource_id = aws_api_gateway_method.main.resource_id
   http_method = aws_api_gateway_method.graphiql.http_method
@@ -289,7 +287,7 @@ resource "aws_api_gateway_integration_response" "graphiql" {
   status_code         = 200
   response_parameters = {
     "method.response.header.Content-Type"                 = "'text/html'",
-    "method.response.header.Access-Control-Allow-Origin"  = "'${var.cors_origin}'",
+    "method.response.header.Access-Control-Allow-Origin"  = "'*'",
     "method.response.header.Access-Control-Allow-Methods" = "'POST, GET, OPTIONS, PUT, DELETE'",
     "method.response.header.Access-Control-Allow-Headers" = "'Accept, Content-Type, Content-Length, Accept-Encoding, Authorization'",
   }
